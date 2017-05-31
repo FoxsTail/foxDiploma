@@ -1,12 +1,12 @@
 package com.alice.dao;
 
+import com.alice.domain.Role;
 import com.alice.domain.User;
-import org.hibernate.SessionFactory;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,51 +14,44 @@ import java.util.List;
  */
 @Repository
 @Transactional
-public class UserDAOImpl implements UserDAO {
+public class UserDAOImpl extends AbstractDAO<Integer, User> implements UserDAO {
 
     @Autowired
-    private SessionFactory sessionFactory;
+    private RoleDAO roleDAO;
 
+    public User findById(Integer id) {
 
-    public void addUser(User user) {
-        sessionFactory.getCurrentSession().save(user);
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<User> listUser() {
-        return sessionFactory.getCurrentSession()
-                .createQuery("from User")
-                .list();
-    }
-
-    public void removeUser(String username) {
-        User user = (User) sessionFactory.getCurrentSession().load(User.class, username);
-
-        if(user != null){
-            sessionFactory.getCurrentSession().delete(user);
+        User user = getByKey(id);
+        if (user != null) {
+            Hibernate.initialize(user.getRoles());
         }
+        return user;
     }
 
     @SuppressWarnings("unchecked")
     public User findByUsername(String username) {
-
-        List<User> users = new ArrayList<User>();
-
-        users = sessionFactory.getCurrentSession()
-                .createQuery("from User where username=?")
-                .setParameter(0, username)
-                .list();
-
-
-        if(users.size() > 0){
-            return users.get(0);
-        }else
+        List<User> userList = getSession().createQuery("from User where username=?").setParameter(0, username).list();
+        try {
+            return userList.get(0);
+        } catch (IndexOutOfBoundsException e) {
             return null;
+        }
+    }
+//перенести на контроллер, а то много юзверей
+    public void saveUser(User user) {
+        Role role = roleDAO.findByRole("USER");
+        user.addRole(role);
+        persist(user);
     }
 
-    //TODO: попробовать загружать юзера не листом а одной персоной
- /*  User user = (User) sessionFactory.getCurrentSession()
-           .load(User.class, username);
-   return user;
-}*/
+    public void removeUser(String username) {
+        delete("from User where username=?", username);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<User> listUser() {
+        return getSession().createQuery("from User")
+                .list();
+    }
+
 }

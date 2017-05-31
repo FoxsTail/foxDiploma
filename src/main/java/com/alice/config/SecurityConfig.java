@@ -23,25 +23,25 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    CustomSuccessHandler customSuccessHandler;
+    private CustomSuccessHandler customSuccessHandler;
 
     @Autowired
     @Qualifier("customUserDetailsService")
-    UserDetailsService userDetailsService;
+    private UserDetailsService userDetailsService;
 
     @Autowired
     public void configureGlobalSecurity(AuthenticationManagerBuilder managerBuilder) throws Exception {
-       managerBuilder.userDetailsService(userDetailsService);
-       managerBuilder.authenticationProvider(authenticationProvider());
+        managerBuilder.userDetailsService(userDetailsService);
+        managerBuilder.authenticationProvider(authenticationProvider());
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public DaoAuthenticationProvider authenticationProvider(){
+    public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder());
@@ -53,21 +53,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                    .antMatchers("/", "/welcome").permitAll()
-                    .antMatchers("/admin/**").hasRole("ADMIN")
-                    .antMatchers("/user/**").hasAnyRole("USER", "ADMIN")
-                    .antMatchers("/resources/**").permitAll()
-                    .and()
+                .antMatchers("/", "/welcome").permitAll()
+                .antMatchers("/admin/**").permitAll()
+                .antMatchers("/user/**").permitAll()
+                .antMatchers("/resources/**").permitAll()
+                .and()
                 .formLogin()
-                    .loginPage("/login")
-                    .usernameParameter("j_username").passwordParameter("j_password")
-                    .successHandler(customSuccessHandler)
-                    .and()
-                .csrf()
-                    .and()
+                .loginPage("/login")
+                .usernameParameter("j_username").passwordParameter("j_password")
+                .successHandler(customSuccessHandler)
+                .and()
                 .exceptionHandling()
-                    .accessDeniedPage("/error")
-                    .and()
-                .rememberMe();
+                .accessDeniedPage("/error")
+                .and()
+                .rememberMe()
+                .and()
+                .csrf();
     }
 }

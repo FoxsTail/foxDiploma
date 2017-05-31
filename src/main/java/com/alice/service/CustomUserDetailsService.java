@@ -2,7 +2,8 @@ package com.alice.service;
 
 import com.alice.dao.UserDAO;
 
-import com.alice.domain.UserRole;
+import com.alice.domain.Role;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,39 +26,44 @@ import java.util.Set;
 public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
-    private UserDAO userDAO;
+    private UserService userService;
 
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        com.alice.domain.User user = userDAO.findByUsername(username);
-        List<GrantedAuthority> authorityList = buildUserAuthority(user.getUserRoles());
+        com.alice.domain.User user = userService.findByUsername(username);
+        if(user==null){
+            System.out.println("User not found");
+            throw new UsernameNotFoundException("Username not found");
+        }
+        System.out.println("User for login : "+ user.getUsername());
+
+        Set<GrantedAuthority> authorityList = buildUserAuthority(user.getRoles());
 
         return buildUserForAuthentification(user, authorityList);
     }
 
 
-    public User buildUserForAuthentification(com.alice.domain.User user,
-                                             List<GrantedAuthority> authorityList){
+    private User buildUserForAuthentification(com.alice.domain.User user,
+                                              Set<GrantedAuthority> authorityList){
+        boolean accountNonExpired = true;
+        boolean credentialsNonExpired = true;
+        boolean accountNonLocked = true;
+
 
         return new User(user.getUsername(),user.getPassword(),user.isEnabled(),
-                true,true, true, authorityList);
+                accountNonExpired ,credentialsNonExpired, accountNonLocked, authorityList);
 
     }
 
-    //Достаем сэт имя-роль(неск) данного пользователя отсекам повторения, записываем в лист
-
-    public List<GrantedAuthority> buildUserAuthority(Set<UserRole> userRoles){
+    private Set<GrantedAuthority> buildUserAuthority(Set<Role> userRoles){
 
         Set<GrantedAuthority> authoritySet = new HashSet<GrantedAuthority>();
-
-        for(UserRole userRole: userRoles){
-            authoritySet.add(new SimpleGrantedAuthority(userRole.getRole()));
+        System.out.println("Уровень выборки");
+        for(Role userRole: userRoles){
+            authoritySet.add(new SimpleGrantedAuthority("ROLE_"+ userRole.getRole()));
+            System.out.println("His role : "+ userRole);
         }
-
-
-        List<GrantedAuthority> authorityList = new ArrayList<GrantedAuthority>(authoritySet);
-
-        return authorityList;
+        return new HashSet<GrantedAuthority>(authoritySet);
     }
 }
 
