@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Stuff</title>
+    <script type="text/javascript" src="../../../../../webapp/resources/jquery-3.2.1.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#check_login").bind("click", function (event) {
+                var login = $("#login").val();
+                $.ajax({
+                    url: "/stuff",
+                    type: "POST",
+                    data: ("login=" + login),
+                    dataType: "text",
+                    success: function (result) {
+                        //alert(result);
+                        $("#login").next().remove();
+                        if (result == "1") {
+                            $("#login").after("<span>Login is free=)</span>");
+                        } else {
+                            $("#login").after("<span>Login is occupied=(</span>");
+                        }
+                    }
+                })
+            });
+        });
+
+    </script>
+
+    <style>
+        .block {
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            margin: 10px 0;
+            width: 300px;
+        }
+
+        .block h1 {
+            border-bottom: 2px solid #ccc;
+            cursor: pointer;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <label>Login:</label>
+    <input type="text" id="login" name="login">
+    <br>
+    <input type="button" id="check_login" value="Send">
+</div>
+
+
+<div class="block">
+    <h1>Block</h1>
+    <p>Smth inside</p>
+    <p>Smth inside</p>
+    <p>Smth inside</p>
+</div>
+<div class="block">
+    <h1>Block</h1>
+    <p>Smth inside</p>
+    <p>Smth inside</p>
+    <p>Smth inside</p>
+</div>
+<div class="block">
+    <h1>Block</h1>
+    <p>Smth inside</p>
+    <p>Smth inside</p>
+    <p>Smth inside</p>
+</div>
+</body>
+</html>
+
+<!--/*       function checkForm(form) {
+var login = form.login.value;
+var password = form.password.value;
+//alert(login);
+var bad="";
+
+if(login == ""){
+bad += "You have to write the login\n";
+}else if(login.length <3 ){
+bad += "Login is too short\n";
+}
+
+if(password == ""){
+bad += "You have to write the password\n";
+}else if(password.length <3 ){
+bad += "Password is too short\n";
+}
+
+if(bad != ""){
+alert(bad);
+return false;
+}
+return true;
+}*/-->
+
+<!--<form name="form" action="#" method="post" onsubmit="return checkForm(this)">
+    <div>
+        <label>Login:</label>
+        <input type="text"  name="login">
+        <br>
+        <label>Password:</label>
+        <input type="password" name="password">
+        <br>
+        <input type="submit" value="Send">
+    </div>
+</form>-->
+
+<!--
+var delay = 500;
+/* $(document).ready(function () {
+$(".block h1").bind("click", function (event) {
+//alert("hello");
+var parent = $(event.target).parent();
+var p = parent.find("p");
+if($(p).is(":visible")){
+$(p).slideUp(delay);
+}else {
+$(p).slideDown(delay);
+}
+
+});
+});*/-->

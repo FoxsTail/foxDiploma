@@ -1,11 +1,12 @@
 package com.alice.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
-import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.*;
@@ -22,6 +23,8 @@ import org.springframework.web.servlet.view.JstlView;
 @Import({SecurityConfig.class})
 public class WebConfig extends WebMvcConfigurerAdapter {
 
+    @Autowired
+    private RoleToUserRoleConverter roleToUserRoleConverter;
 
     //Указываем, где лежат ресурсы
     @Override
@@ -33,6 +36,11 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     public void addViewControllers(ViewControllerRegistry registry) {
         super.addViewControllers(registry);
         registry.addViewController("/").setViewName("forward:/welcome");
+    }
+
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        registry.addConverter(roleToUserRoleConverter);
     }
 
     //Перенаправляет запросы без специальной обработки на сервлет "по умолчанию"
@@ -62,11 +70,11 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
     //Установка сообщений по умолчанию, в зависимости от локаля пользователя
     @Bean(name = "messageSource")
-    public ReloadableResourceBundleMessageSource getMessageResource(){
-       ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-       messageSource.setBasename("classpath:messages");
-       messageSource.setDefaultEncoding("UTF-8");
+    public ReloadableResourceBundleMessageSource getMessageResource() {
+        ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
+        messageSource.setBasename("classpath:messages");
+        messageSource.setDefaultEncoding("UTF-8");
 
-       return messageSource;
+        return messageSource;
     }
 }

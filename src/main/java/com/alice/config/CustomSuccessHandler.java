@@ -51,17 +51,17 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         } else if (isUser(roles)) {
             url = "/user/index";
         } else {
-            url = "/error";
+            url = "/user/main";
         }
         return url;
     }
 
     public boolean isUser(List<String> roles) {
-        return roles.contains("ROLE_USER");
+        return roles.contains("USER");
     }
 
     public boolean isAdmin(List<String> roles) {
-       return roles.contains("ROLE_ADMIN");
+       return roles.contains("ADMIN");
     }
 
     @Override
